@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* --- Palet dan gaya Super Admin (orange/white) --- */
+:root {
+  --orange: #ff7a00;
+  --orange-600: #ff6a00;
+  --orange-700: #e96200;
+  --orange-100: #fff3e8;
+  --white: #ffffff;
+  --gray-50: #f7f7f8;
+  --gray-100: #eceef0;
+  --gray-700: #444851;
+  --shadow: 0 6px 14px rgba(0,0,0,0.08);
+}
+
+.admin-body { background: var(--gray-50); color: var(--gray-700); }
+.admin-layout { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+.admin-sidebar { background: var(--white); border-right: 1px solid var(--gray-100); padding: 20px 16px; }
+.admin-sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom: 16px; }
+.brand-logo { width:34px; height:34px; border-radius:8px; background: var(--orange); color: var(--white); display:flex; align-items:center; justify-content:center; font-weight:700; }
+.brand-name { font-weight:700; color: var(--gray-700); }
+.sidebar-nav { display:flex; flex-direction:column; gap:8px; }
+.nav-link { padding:10px 12px; border-radius:10px; color: var(--gray-700); text-decoration:none; transition: background .2s ease; }
+.nav-link:hover { background: var(--orange-100); }
+.nav-link.active { background: var(--orange); color: var(--white); }
+.admin-main { display:flex; flex-direction:column; }
+.admin-header { background: var(--white); border-bottom:1px solid var(--gray-100); padding: 16px 24px; display:flex; align-items:center; justify-content:space-between; }
+.page-title { margin:0; font-size: 22px; color: var(--gray-700); }
+.admin-content { padding: 24px; }
+.admin-footer { margin-top:auto; background: var(--white); border-top:1px solid var(--gray-100); padding: 12px 24px; color: #6b7280; font-size: 13px; }
+.grid { display:grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+.grid .card:nth-child(1) { grid-column: span 12; }
+.grid .card:nth-child(2) { grid-column: span 12; }
+.grid .card:nth-child(3) { grid-column: span 12; }
+@media (min-width: 992px) {
+  .grid .card:nth-child(1) { grid-column: span 12; }
+  .grid .card:nth-child(2) { grid-column: span 7; }
+  .grid .card:nth-child(3) { grid-column: span 5; }
+}
+.card { background: var(--white); border:1px solid var(--gray-100); border-radius: 16px; box-shadow: var(--shadow); }
+.card-header { padding: 14px 16px; border-bottom:1px solid var(--gray-100); }
+.card-header h3 { margin:0; font-size:16px; color: var(--gray-700); }
+.card-body { padding: 16px; }
+.stats { display:grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+@media (max-width: 992px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+.stat { background: var(--orange-100); border:1px dashed var(--orange-600); border-radius: 12px; padding: 16px; text-align:center; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--orange-700); }
+.stat-label { display:block; margin-top:4px; color: var(--gray-700); }
+.actions { display:flex; gap: 12px; flex-wrap: wrap; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding: 10px 14px; border-radius: 12px; text-decoration:none; font-weight: 600; cursor:pointer; border: 1px solid transparent; }
+.btn-orange { background: var(--orange); color: var(--white); border-color: var(--orange); }
+.btn-orange:hover { background: var(--orange-700); border-color: var(--orange-700); }
+.btn-outline-orange { background: transparent; color: var(--orange-700); border-color: var(--orange-600); }
+.btn-outline-orange:hover { background: var(--orange-100); }
+.activity-list { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+.activity-list li { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; border:1px dashed var(--gray-100); }
+.activity-list .dot { width:8px; height:8px; border-radius:999px; background: var(--orange); display:inline-block; }
