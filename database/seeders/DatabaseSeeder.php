@@ -16,6 +16,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            CategorySeeder::class,
+            ProductSeeder::class,
+        ]);
+
         // Seed default Super Admin
         User::updateOrCreate(
             ['email' => 'superadmin@example.com'],
@@ -37,6 +42,18 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('admin123'),
                 'phone' => '081234567891',
                 'role' => 'admin_produk',
+            ]
+        );
+
+        // Seed default Dropshipper
+        User::updateOrCreate(
+            ['email' => 'dropshipper@example.com'],
+            [
+                'name' => 'Dropshipper Demo',
+                'email' => 'dropshipper@example.com',
+                'password' => Hash::make('dropshipper123'),
+                'phone' => '081234567892',
+                'role' => 'dropshipper',
             ]
         );
     }

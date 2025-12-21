@@ -1,4 +1,4 @@
-@extends('layouts.superadmin')
+@extends('layouts.admin')
 
 @section('title', 'Daftar Produk')
 @section('header', 'Produk')

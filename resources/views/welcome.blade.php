@@ -34,8 +34,6 @@
                 
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-primary transition">Beranda</a>
-                    <a href="{{ route('product') }}" class="text-gray-700 hover:text-primary transition">Produk</a>
-                    <a href="{{ route('supplier') }}" class="text-gray-700 hover:text-primary transition">Supplier</a>
                     <a href="{{ route('cara_kerja') }}" class="text-gray-700 hover:text-primary transition">Cara Kerja</a>
                     <a href="{{ route('kontak') }}" class="text-gray-700 hover:text-primary transition">Kontak</a>
                 </div>
@@ -129,7 +127,6 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-4 text-dark">Koneksi Langsung</h3>
                     <p class="text-gray-600 mb-4">Hubungkan supplier dan dropshipper secara langsung tanpa perantara untuk efisiensi maksimal.</p>
-                    <a href="#" class="text-primary font-semibold hover:underline">Pelajari lebih lanjut <i class="fas fa-arrow-right ml-1"></i></a>
                 </div>
 
                 <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition group">
@@ -138,7 +135,6 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-4 text-dark">Manajemen Stok Real-time</h3>
                     <p class="text-gray-600 mb-4">Pantau ketersediaan produk secara real-time dengan sistem inventory yang terintegrasi.</p>
-                    <a href="#" class="text-primary font-semibold hover:underline">Pelajari lebih lanjut <i class="fas fa-arrow-right ml-1"></i></a>
                 </div>
 
                 <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition group">
@@ -147,7 +143,6 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-4 text-dark">Transaksi Aman</h3>
                     <p class="text-gray-600 mb-4">Sistem pembayaran yang aman dengan perlindungan data dan keamanan tingkat tinggi.</p>
-                    <a href="#" class="text-primary font-semibold hover:underline">Pelajari lebih lanjut <i class="fas fa-arrow-right ml-1"></i></a>
                 </div>
 
                 <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition group">
@@ -156,7 +151,6 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-4 text-dark">Akses Multi-Platform</h3>
                     <p class="text-gray-600 mb-4">Kelola bisnis dari mana saja melalui web, mobile, atau tablet dengan sinkronisasi otomatis.</p>
-                    <a href="#" class="text-primary font-semibold hover:underline">Pelajari lebih lanjut <i class="fas fa-arrow-right ml-1"></i></a>
                 </div>
 
                 <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition group">
@@ -165,7 +159,6 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-4 text-dark">Chat Terintegrasi</h3>
                     <p class="text-gray-600 mb-4">Komunikasi langsung antara supplier dan dropshipper untuk negosiasi dan diskusi produk.</p>
-                    <a href="#" class="text-primary font-semibold hover:underline">Pelajari lebih lanjut <i class="fas fa-arrow-right ml-1"></i></a>
                 </div>
 
                 <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition group">
@@ -174,7 +167,6 @@
                     </div>
                     <h3 class="text-2xl font-bold mb-4 text-dark">Laporan & Analitik</h3>
                     <p class="text-gray-600 mb-4">Dashboard analitik lengkap untuk memantau performa bisnis dan mengambil keputusan strategis.</p>
-                    <a href="#" class="text-primary font-semibold hover:underline">Pelajari lebih lanjut <i class="fas fa-arrow-right ml-1"></i></a>
                 </div>
             </div>
         </div>

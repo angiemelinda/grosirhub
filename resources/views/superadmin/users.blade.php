@@ -1,4 +1,4 @@
-@extends('layouts.superadmin')
+@extends('layouts.admin')
 
 @section('title', 'Manajemen Pengguna')
 @section('header', 'Pengguna')
@@ -6,7 +6,7 @@
 @section('content')
 <!-- Tombol Tambah Pengguna -->
 <div class="flex justify-end mb-4">
-    <a href="{{ route('users.create') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded shadow">Tambah Pengguna</a>
+    <a href="{{ route('superadmin.users.create') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded shadow">Tambah Pengguna</a>
 </div>
 
 <!-- Tabel Pengguna -->
@@ -35,8 +35,8 @@
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                    <a href="{{ route('users.edit', $user->id) }}" class="text-blue-500 hover:underline mr-2">Edit</a>
-                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin hapus pengguna ini?')">
+                    <a href="{{ route('superadmin.users.edit', $user->id) }}" class="text-blue-500 hover:underline mr-2">Edit</a>
+                    <form action="{{ route('superadmin.users.destroy', $user->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin hapus pengguna ini?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="text-red-500 hover:underline">Hapus</button>

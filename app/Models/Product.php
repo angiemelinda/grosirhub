@@ -10,11 +10,26 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sku', 'name', 'category_id', 'price', 'stock', 'status',
+        'sku',
+        'name',
+        'category_id',
+        'price',
+        'stock',
+        'status',
     ];
 
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(Image::class);
+    }
+
+    public function primaryImage()
+    {
+        return $this->hasOne(Image::class)->where('is_primary', true);
     }
 }

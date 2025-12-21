@@ -35,8 +35,6 @@
 
       <div class="hidden md:flex items-center space-x-8">
         <a href="{{ route('home') }}" class="text-gray-700 hover:text-primary">Beranda</a>
-        <a href="{{ route('product') }}" class="text-gray-700 hover:text-primary">Produk</a>
-        <a href="{{ route('supplier') }}" class="text-gray-700 hover:text-primary">Supplier</a>
         <a href="{{ route('cara_kerja') }}" class="text-gray-700 hover:text-primary">Cara Kerja</a>
         <a href="{{ route('kontak') }}" class="text-primary font-semibold border-b-2 border-primary">Kontak</a>
       </div>

@@ -1,9 +1,5 @@
 @php
-    $isAdminPage = request()->routeIs('superadmin.*') || 
-                   request()->routeIs('adminproduk.*') || 
-                   request()->routeIs('adminpengguna.*') || 
-                   request()->routeIs('admintransaksi.*') || 
-                   request()->routeIs('adminlaporan.*') || 
+    $isAdminPage = request()->routeIs('superadmin.*') ||
                    request()->routeIs('supplier.*') || 
                    request()->routeIs('dropshipper.*');
 @endphp
@@ -46,16 +42,11 @@
                 
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-primary transition">Beranda</a>
-                    <a href="{{ route('product') }}" class="text-gray-700 hover:text-primary transition">Produk</a>
-                    <a href="{{ route('supplier') }}" class="text-gray-700 hover:text-primary transition">Supplier</a>
                     <a href="{{ route('cara_kerja') }}" class="text-gray-700 hover:text-primary transition">Cara Kerja</a>
                     <a href="{{ route('kontak') }}" class="text-gray-700 hover:text-primary transition">Kontak</a>
                 </div>
 
                 <div class="flex items-center space-x-4">
-                    <button class="text-gray-700 hover:text-primary transition">
-                        <i class="fas fa-search text-xl"></i>
-                    </button>
                     @if(!auth()->check())
                         <a href="{{ route('login') }}" class="bg-white border-2 border-primary text-primary px-6 py-2 rounded-lg hover:bg-primary hover:text-white transition">
                             Masuk

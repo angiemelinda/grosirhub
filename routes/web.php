@@ -3,9 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LandingController;
-use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\DropshipperController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Models\User;
 
 // ============================================
 // PUBLIC ROUTES
@@ -50,13 +51,14 @@ Route::get('/forgot-password', function () {
 // ============================================
 
 Route::middleware(['auth', 'role:super_admin'])->prefix('superadmin')->name('superadmin.')->group(function () {
-    Route::get('/dashboard', [SuperAdminController::class, 'index'])->name('dashboard');
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::get('/users/create', [SuperAdminController::class, 'create'])->name('users.create');
-    Route::post('/users', [SuperAdminController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}/edit', [SuperAdminController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [SuperAdminController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [SuperAdminController::class, 'destroy'])->name('users.destroy');
+    Route::get('/dashboard', function () {
+        return view('superadmin.dashboard');
+    })->name('dashboard');
+
+    Route::get('/users', function () {
+        $users = User::orderByDesc('id')->paginate(10);
+        return view('superadmin.users', compact('users'));
+    })->name('users');
 
     
     Route::get('/suppliers', function () {
@@ -188,21 +190,21 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
 // ============================================
 
 Route::middleware(['auth', 'role:dropshipper'])->prefix('dropshipper')->name('dropshipper.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dropshipper.dashboard');
-    })->name('dashboard');
-    
-    Route::get('/catalog', function () {
-        return view('dropshipper.catalog');
-    })->name('catalog');
-    
-    Route::get('/order-items', function () {
-        return view('dropshipper.order-items');
-    })->name('order-items');
-    
-    Route::get('/order-history', function () {
-        return view('dropshipper.order-history');
-    })->name('order-history');
+    Route::get('/dashboard', [DropshipperController::class, 'dashboard'])->name('dashboard');
+    Route::get('/catalog', [DropshipperController::class, 'catalog'])->name('catalog');
+    Route::get('/product/{product}', [DropshipperController::class, 'productShow'])->name('product.show');
+    Route::get('/order-items', [DropshipperController::class, 'orderItems'])->name('order-items');
+    Route::post('/order-items', [DropshipperController::class, 'orderItemsStore'])->name('order-items.store');
+    Route::get('/orders', [DropshipperController::class, 'orders'])->name('orders');
+    Route::get('/order/{id}', [DropshipperController::class, 'orderShow'])->name('order.show');
+    Route::get('/order-history', [DropshipperController::class, 'orderHistory'])->name('order-history');
+    Route::get('/history', [DropshipperController::class, 'orderHistory'])->name('history');
+    Route::get('/cart', [DropshipperController::class, 'cart'])->name('cart');
+    Route::get('/payments', [DropshipperController::class, 'payments'])->name('payments');
+    Route::get('/tracking', [DropshipperController::class, 'tracking'])->name('tracking');
+    Route::get('/transactions', [DropshipperController::class, 'transactions'])->name('transactions');
+    Route::get('/reports', [DropshipperController::class, 'reports'])->name('reports');
+    Route::get('/profile', [DropshipperController::class, 'profile'])->name('profile');
 });
 
 // ============================================
