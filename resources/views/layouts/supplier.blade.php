@@ -20,7 +20,6 @@
 </head>
 <body class="bg-gray-100 font-inter min-h-screen flex">
 
-<!-- Sidebar -->
 <aside class="w-64 bg-white shadow-lg flex flex-col border-r">
     <div class="p-6 text-2xl font-bold text-orange-500 border-b">
         Grosir<span class="text-gray-800">Hub</span>
@@ -29,50 +28,57 @@
     <div class="px-4 mt-6">
         <p class="text-xs font-semibold text-gray-400 uppercase mb-3">Menu Utama</p>
         <nav class="space-y-1">
-            <!-- Dashboard -->
             <a href="{{ route('supplier.dashboard') }}"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg transition
                 {{ request()->routeIs('supplier.dashboard') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3 10.5L12 3l9 7.5M5 10v10h5v-6h4v6h5V10"/>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5L12 3l9 7.5M5 10v10h5v-6h4v6h5V10"/>
                 </svg>
                 Dashboard
             </a>
 
-            <!-- Produk -->
             <a href="{{ route('supplier.produk.index') }}"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg transition
                 {{ request()->routeIs('supplier.produk.*') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                     <path d="M3.3 7L12 12l8.7-5M12 22V12"/>
                 </svg>
                 Produk
             </a>
 
-            <!-- Pesanan -->
-            <a href="{{ route('supplier.pesanan.index') }}"
+            <a href="{{ route('supplier.order.masuk') }}"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg transition
-                {{ request()->routeIs('supplier.pesanan.*') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/>
-                    <path d="M9 6h6M9 10h6M9 14h4"/>
+                {{ request()->routeIs('supplier.order.masuk') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
-                Pesanan
+                Order Masuk
             </a>
 
-            <!-- Pendapatan -->
+            <a href="{{ route('supplier.pengiriman') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg transition
+                {{ request()->routeIs('supplier.pengiriman') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M5 18h14M5 18a2 2 0 00-2 2h18a2 2 0 00-2-2M5 18V9h3l2-5h6l2 5h3v9M7 14h10"/>
+                </svg>
+                Pengiriman
+            </a>
+
+            <a href="{{ route('supplier.riwayat') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg transition
+                {{ request()->routeIs('supplier.riwayat') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Riwayat Transaksi
+            </a>
+
             <a href="{{ route('supplier.earnings') }}"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg transition
                 {{ request()->routeIs('supplier.earnings') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
                 Pendapatan
             </a>
@@ -82,52 +88,31 @@
 
         <p class="text-xs font-semibold text-gray-400 uppercase mt-8 mb-3">Pengaturan</p>
         <nav class="space-y-1">
-            <!-- Profil -->
             <a href="{{ route('supplier.profil.edit') }}"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg transition
                 {{ request()->routeIs('supplier.profil.*') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 12a5 5 0 100-10 5 5 0 000 10z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 Profil
             </a>
 
-            <!-- Pengaturan -->
             <a href="{{ route('supplier.pengaturan') }}"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg transition
                 {{ request()->routeIs('supplier.pengaturan') ? 'bg-orange-100 text-orange-600 border-l-4 border-orange-500' : 'text-gray-700 hover:bg-gray-100' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.591 1.066
-                        1.724 1.724 0 012.356 2.356 1.724 1.724 0 001.066 2.591c1.756.426 1.756 2.924 0 3.35
-                        a1.724 1.724 0 00-1.066 2.591 1.724 1.724 0 01-2.356 2.356
-                        1.724 1.724 0 00-2.591 1.066c-.426 1.756-2.924 1.756-3.35 0
-                        a1.724 1.724 0 00-2.591-1.066 1.724 1.724 0 01-2.356-2.356
-                        1.724 1.724 0 00-1.066-2.591c-1.756-.426-1.756-2.924 0-3.35
-                        a1.724 1.724 0 001.066-2.591 1.724 1.724 0 012.356-2.356
-                        1.724 1.724 0 002.591-1.066z" />
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.591 1.066 1.724 1.724 0 012.356 2.356 1.724 1.724 0 001.066 2.591c1.756.426 1.756 2.924 0 3.35 a1.724 1.724 0 00-1.066 2.591 1.724 1.724 0 01-2.356 2.356 1.724 1.724 0 00-2.591 1.066c-.426 1.756-2.924 1.756-3.35 0 a1.724 1.724 0 00-2.591-1.066 1.724 1.724 0 01-2.356-2.356 1.724 1.724 0 00-1.066-2.591c-1.756-.426-1.756-2.924 0-3.35 a1.724 1.724 0 001.066-2.591 1.724 1.724 0 012.356-2.356 1.724 1.724 0 002.591-1.066z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 Pengaturan
             </a>
 
-            <!-- Logout -->
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit"
                     class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15" />
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M18 12H9m0 0l3-3m-3 3l3 3" />
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
                     Logout
                 </button>
@@ -136,17 +121,13 @@
     </div>
 </aside>
 
-<!-- Konten Utama -->
 <main class="flex-1 p-6 max-w-7xl mx-auto space-y-6">
 
-    <!-- HEADER GLOBAL (Hi, Search, Notif) -->
     <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-        <!-- Sapaan -->
         <div class="text-gray-800 font-semibold text-lg">
             Hi, {{ Auth::user()->name }}
         </div>
 
-        <!-- Search Produk (Hanya di halaman Produk) -->
         @if(request()->routeIs('supplier.produk.*'))
         <form action="{{ route('supplier.produk.index') }}" method="GET" class="flex-1 max-w-md">
             <div class="relative flex items-center">
@@ -162,10 +143,8 @@
         </form>
         @endif
 
-        <!-- Ikon Pesan & Notifikasi -->
         <div class="flex items-center gap-3">
             <button class="p-2 rounded-lg bg-yellow-400 text-white hover:bg-yellow-500">
-                <!-- Notifikasi Icon -->
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" 
                     viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
@@ -176,4 +155,5 @@
     {{-- Konten halaman --}}
     @yield('content')
 </main>
-
+</body>
+</html>

@@ -5,107 +5,67 @@ namespace App\Http\Controllers\Supplier;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
-use App\Models\Pesanan;
-use App\Models\OrderItem;
-use Carbon\Carbon;
+use App\Models\Order; // Pastikan pakai Model Order yang benar
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
         $supplierId = Auth::id();
+
+        // ==========================================
+        // 1. DATA KARTU STATISTIK
+        // ==========================================
         
-        // Get real data
+        // Total Produk milik supplier
         $totalProduk = Product::where('user_id', $supplierId)->count();
-        $totalOrders = Pesanan::where('supplier_id', $supplierId)->count();
+        
+        // Total Stok
         $totalStok = Product::where('user_id', $supplierId)->sum('stock');
+        
+        // Produk Stok Habis
         $outOfStock = Product::where('user_id', $supplierId)->where('stock', 0)->count();
         
-        // Recent orders
-        $pesananTerbaru = Pesanan::where('supplier_id', $supplierId)
+        // Total Pesanan (Cari order yang mengandung produk supplier ini)
+        $totalOrders = Order::whereHas('items.product', function($query) use ($supplierId) {
+            $query->where('user_id', $supplierId);
+        })->where('status', '!=', 'belum_dibayar')->count();
+
+
+        // ==========================================
+        // 2. TABEL PESANAN TERBARU
+        // ==========================================
+        // Kita ambil 5 order terakhir yang relevan
+        $pesananTerbaru = Order::whereHas('items.product', function($query) use ($supplierId) {
+                $query->where('user_id', $supplierId);
+            })
+            ->with(['user']) // Eager load data pemesan (Dropshipper)
             ->latest()
             ->take(5)
-            ->get()
-            ->map(function($pesanan) {
-                return (object)[
-                    'id' => $pesanan->id,
-                    'kode' => $pesanan->kode_pesanan,
-                    'status' => $pesanan->status,
-                    'total' => $pesanan->total_harga,
-                    'created_at' => $pesanan->created_at
-                ];
-            });
-        
-        // Top products by stock (lowest stock first - need attention)
+            ->get();
+
+
+        // ==========================================
+        // 3. TABEL PRODUK (STOK RENDAH/TERLARIS)
+        // ==========================================
+        // PENTING: Kita hapus ->map() disini agar 'image_url' dan 'name' terbaca di View
         $produkTeratas = Product::where('user_id', $supplierId)
-            ->orderBy('stock', 'asc')
-            ->take(5)
-            ->get()
-            ->map(function($produk) {
-                return (object)[
-                    'id' => $produk->id,
-                    'nama' => $produk->name,
-                    'stok' => $produk->stock,
-                    'status' => $produk->status
-                ];
-            });
-        
-        // Notifications
-        $notifikasi = collect();
-        
-        // New orders
-        $newOrders = Pesanan::where('supplier_id', $supplierId)
-            ->where('status', 'baru')
-            ->latest()
-            ->take(3)
+            ->orderBy('stock', 'asc') // Tampilkan stok paling sedikit dulu (urgent)
+            ->take(4)
             ->get();
-        
-        foreach ($newOrders as $order) {
-            $notifikasi->push((object)[
-                'message' => 'Pesanan baru masuk #' . $order->kode_pesanan,
-                'type' => 'order',
-                'id' => $order->id
-            ]);
-        }
-        
-        // Low stock products
-        $lowStockProducts = Product::where('user_id', $supplierId)
-            ->where('stock', '<', 10)
-            ->where('stock', '>', 0)
-            ->take(3)
-            ->get();
-        
-        foreach ($lowStockProducts as $product) {
-            $notifikasi->push((object)[
-                'message' => 'Produk ' . $product->name . ' hampir habis (Stok: ' . $product->stock . ')',
-                'type' => 'stock',
-                'id' => $product->id
-            ]);
-        }
-        
-        // Out of stock
-        $outOfStockProducts = Product::where('user_id', $supplierId)
-            ->where('stock', 0)
-            ->take(2)
-            ->get();
-        
-        foreach ($outOfStockProducts as $product) {
-            $notifikasi->push((object)[
-                'message' => 'Produk ' . $product->name . ' stok habis',
-                'type' => 'out_of_stock',
-                'id' => $product->id
-            ]);
-        }
-        
+
+
+        // ==========================================
+        // 4. KIRIM DATA KE VIEW
+        // ==========================================
         return view('supplier.dashboard2', compact(
             'totalProduk',
             'totalOrders',
             'totalStok',
             'outOfStock',
             'pesananTerbaru',
-            'produkTeratas',
-            'notifikasi'
+            'produkTeratas'
         ));
     }
 }
-

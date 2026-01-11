@@ -175,36 +175,43 @@ Route::middleware(['auth', 'role:admin_laporan'])->prefix('adminlaporan')->name(
 // ============================================
 // SUPPLIER ROUTES
 // ============================================
+// ============================================
+// SUPPLIER ROUTES
+// ============================================
 Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier.')->group(function () {
 
-    // Dashboard
+    // 1. Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Supplier\DashboardController::class, 'index'])->name('dashboard');
 
-    // Pengaturan
-    Route::get('/pengaturan', fn () => view('supplier.pengaturan.index'))
-        ->name('pengaturan');
-
-    // Resource Produk
+    // 2. Resource Produk
     Route::resource('produk', ProdukController::class);
-    
-    // Route aliases for sidebar navigation
     Route::get('/my-products', [ProdukController::class, 'index'])->name('my-products');
-    Route::get('/orders', [PesananController::class, 'index'])->name('orders');
 
-    // Pesanan
-    Route::get('/pesanan', [PesananController::class, 'index'])->name('pesanan.index');
+    // 3. MENU ORDER MASUK
+    Route::get('/order-masuk', [PesananController::class, 'orderMasuk'])->name('order.masuk');
+    Route::post('/order/{id}/konfirmasi', [PesananController::class, 'konfirmasiProses'])->name('order.konfirmasi');
+
+    // JALUR PENYELAMAT (Agar dashboard tidak error saat klik 'Lihat Semua')
+    Route::get('/pesanan', [PesananController::class, 'orderMasuk'])->name('pesanan.index');
     Route::get('/pesanan/{id}', [PesananController::class, 'show'])->name('pesanan.show');
-    
-    // Earnings/Pendapatan
+
+    // 4. MENU PENGIRIMAN
+    Route::get('/pengiriman', [PesananController::class, 'pengiriman'])->name('pengiriman');
+    Route::post('/order/{id}/resi', [PesananController::class, 'inputResi'])->name('order.input_resi');
+
+    // 5. MENU RIWAYAT
+    Route::get('/riwayat', [PesananController::class, 'riwayat'])->name('riwayat');
+
+    // 6. MENU PENDAPATAN (YANG TADI EROR)
+    // Pastikan baris ini ada:
     Route::get('/earnings', [\App\Http\Controllers\Supplier\EarningsController::class, 'index'])->name('earnings');
 
-    // Profil (edit & update)
+    // Profil & Pengaturan
     Route::get('/profil', [\App\Http\Controllers\Supplier\ProfilController::class, 'edit'])->name('profil.edit');
     Route::put('/profil', [\App\Http\Controllers\Supplier\ProfilController::class, 'update'])->name('profil.update');
-
-    // Ganti password
     Route::get('/password', [\App\Http\Controllers\Supplier\ProfilController::class, 'editPassword'])->name('password.change');
     Route::put('/password', [\App\Http\Controllers\Supplier\ProfilController::class, 'updatePassword'])->name('password.update');
+    Route::get('/pengaturan', fn () => view('supplier.pengaturan.index'))->name('pengaturan');
 
 });
 
@@ -297,4 +304,13 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
 Route::post('/midtrans/callback', 
     [MidtransCallbackController::class, 'handle']
 );
-
+// --- JALUR PENYELAMAT: ISI KATEGORI OTOMATIS ---
+Route::get('/isi-kategori', function() {
+    $kategori = ['Fashion', 'Elektronik', 'Kecantikan', 'Makanan', 'Peralatan Rumah', 'Mainan'];
+    
+    foreach($kategori as $nama) {
+        \App\Models\Category::firstOrCreate(['name' => $nama]);
+    }
+    
+    return "BERHASIL! Kategori sudah dibuat. Silakan kembali ke menu Produk dan coba lagi.";
+});
