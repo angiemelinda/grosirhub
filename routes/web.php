@@ -218,52 +218,43 @@ Route::middleware(['auth', 'role:supplier'])->prefix('supplier')->name('supplier
 // ============================================
 // DROPSHIPPER ROUTES
 // ============================================
+// ============================================
+// DROPSHIPPER ROUTES
+// ============================================
 
 Route::middleware(['auth', 'role:dropshipper'])->prefix('dropshipper')->name('dropshipper.')->group(function () {
-    // ===== DASHBOARD =====
+    
+    // Dashboard & Profil
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
     Route::get('/tracking', [DashboardController::class, 'tracking'])->name('tracking');
     Route::get('/reports', [DashboardController::class, 'reports'])->name('reports');
-    // ===== PRODUCT / CATALOG =====
+
+    // Katalog
     Route::get('/catalog', [DropshipperProductController::class, 'index'])->name('catalog');
     Route::get('/product/{id}', [DropshipperProductController::class, 'show'])->name('product.show');
     
-     // ===== ORDER =====
+    // Pesanan
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
     Route::get('/order/{id}', [OrderController::class, 'orderShow'])->name('order.show');
-    Route::get('/order-items', [OrderController::class, 'orderItems'])->name('order-items');
-    Route::post('/order-items', [OrderController::class, 'orderItemsStore'])->name('order-items.store');
     Route::get('/order-history', [OrderController::class, 'orderHistory'])->name('order-history');
-    Route::get('/cart', [OrderController::class, 'cart'])->name('cart');
-    Route::get('/history', [OrderController::class, 'orderHistory'])->name('history');
-    Route::post('/cart/add', [OrderController::class, 'addToCart'])->name('cart.add');
-    Route::post('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-
-    // ===== PAYMENT (SPRINT 1 DUMMY) =====
-    Route::post('/payments/{order}/pay', [PaymentController::class, 'pay'])->name('payments.pay');
-
-    // ===== TRANSACTIONS (SPRINT 1 DUMMY) =====
-    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
     
-    // API: transactions (DB-backed)
-    Route::get('/api/transactions', [TransactionController::class, 'indexApi'])->name('api.transactions');
-    Route::get('/api/transactions/{id}', [TransactionController::class, 'showApi'])->name('api.transactions.show');
-    Route::get('/midtrans-test', function () {
-        return config('midtrans.server_key');
-    });
+    // === KERANJANG BELANJA (YANG DIPERBAIKI) ===
+    Route::get('/cart', [OrderController::class, 'cart'])->name('cart');
+    Route::post('/cart/add', [OrderController::class, 'addToCart'])->name('cart.add');
+    
+    // Rute Baru untuk Update & Hapus
+    Route::patch('/cart/update', [OrderController::class, 'updateCart'])->name('cart.update');
+    Route::delete('/cart/remove', [OrderController::class, 'removeFromCart'])->name('cart.remove');
 
-    // ===== SHIPPING & REPORTS API (backend JSON endpoints) =====
-    // Track by resi (returns JSON, can proxy to external provider if configured)
-    Route::get('/api/tracking/{resi}', [\App\Http\Controllers\Dropshipper\ShippingController::class, 'track'])
-        ->name('api.tracking');
+    // Checkout
 
-    // Reports: summary and list (paginated) with estimated margin
-    Route::get('/api/reports/summary', [\App\Http\Controllers\Dropshipper\ReportController::class, 'summary'])
-        ->name('api.reports.summary');
-    Route::get('/api/reports/orders', [\App\Http\Controllers\Dropshipper\ReportController::class, 'orders'])
-        ->name('api.reports.orders');
+    // Alur Checkout Baru
+    Route::post('/checkout', [OrderController::class, 'checkoutPage'])->name('checkout'); // Ke Halaman Upload
+    Route::post('/payment/process', [OrderController::class, 'processPayment'])->name('payment.process'); // Proses Upload & Simpan
 
+    // API Dummy
+    Route::get('/api/tracking/{resi}', [\App\Http\Controllers\Dropshipper\ShippingController::class, 'track'])->name('api.tracking');
 });
 
 // ============================================
@@ -314,3 +305,144 @@ Route::get('/isi-kategori', function() {
     
     return "BERHASIL! Kategori sudah dibuat. Silakan kembali ke menu Produk dan coba lagi.";
 });
+// --- JALUR DARURAT: KLAIM SEMUA PRODUK ---
+Route::get('/claim-all-products', function() {
+    if (!auth()->check()) {
+        return "Login sebagai Supplier dulu!";
+    }
+    
+    $user = auth()->user();
+    
+    // Ubah semua produk di database menjadi milik user yang sedang login
+    \App\Models\Product::query()->update(['user_id' => $user->id]);
+    
+    return "BERHASIL! Semua produk sekarang menjadi milik: " . $user->name . ". Silakan refresh halaman Order Masuk.";
+});
+// --- JALUR DARURAT: GENERATE DATA DUMMY UNTUK PRESENTASI ---
+Route::get('/buat-data-presentasi', function() {
+    $user = Illuminate\Support\Facades\Auth::user();
+    if(!$user) return "Login dulu sebagai dropshipper!";
+
+    // Pastikan ada minimal 1 produk (buat dummy jika kosong)
+    $product = \App\Models\Product::first();
+    if(!$product) {
+        $product = \App\Models\Product::create([
+            'user_id' => 1, 'category_id' => 1, 'name' => 'Produk Contoh', 
+            'slug' => 'produk-contoh', 'price' => 100000, 'stock' => 100, 
+            'description' => 'Desc', 'status' => 'active'
+        ]);
+    }
+
+    // 1. Buat 2 Pesanan DIKEMAS (Processing)
+    for($i=0; $i<2; $i++) {
+        $o = \App\Models\Order::create([
+            'user_id' => $user->id, 'order_code' => 'ORD-PACK-'.rand(100,999),
+            'total' => 150000, 'status' => 'processing', 'payment_status' => 'paid',
+            'payment_method' => 'BCA', 'margin' => 0
+        ]);
+        \App\Models\OrderItem::create(['order_id'=>$o->id, 'product_id'=>$product->id, 'quantity'=>2, 'price'=>75000, 'subtotal'=>150000]);
+    }
+
+    for($i=0; $i<2; $i++) {
+        $o = \App\Models\Order::create([
+            'user_id' => $user->id, 'order_code' => 'ORD-SHIP-'.rand(100,999),
+            'total' => 200000, 'status' => 'shipping', 'payment_status' => 'paid',
+            'payment_method' => 'GoPay', 'resi' => 'JP'.rand(10000000,99999999), 'margin' => 0
+        ]);
+        \App\Models\OrderItem::create(['order_id'=>$o->id, 'product_id'=>$product->id, 'quantity'=>1, 'price'=>200000, 'subtotal'=>200000]);
+    }
+
+    // 3. Buat 3 Pesanan SELESAI (Completed) -> Masuk Riwayat
+    for($i=0; $i<3; $i++) {
+        $o = \App\Models\Order::create([
+            'user_id' => $user->id, 'order_code' => 'ORD-DONE-'.rand(100,999),
+            'total' => 350000, 'status' => 'completed', 'payment_status' => 'paid',
+            'payment_method' => 'Dana', 'resi' => 'JP'.rand(10000000,99999999), 'margin' => 0
+        ]);
+        \App\Models\OrderItem::create(['order_id'=>$o->id, 'product_id'=>$product->id, 'quantity'=>5, 'price'=>70000, 'subtotal'=>350000]);
+    }
+
+    return redirect()->route('dropshipper.orders')->with('success', 'Data Presentasi Berhasil Dibuat! Cek tab Dikemas, Dikirim, dan Menu Riwayat.');
+});
+
+// Route untuk mengubah status jadi Selesai (Tombol Terima Pesanan)
+Route::get('/terima-pesanan/{id}', function($id) {
+    \App\Models\Order::where('id', $id)->update(['status' => 'completed']);
+    return redirect()->back()->with('success', 'Pesanan Diterima! Masuk ke Riwayat.');
+})->name('dropshipper.order.complete');
+// --- JALUR KHUSUS: GENERATE DATA PRESENTASI ---
+Route::get('/data-presentasi', function() {
+    $user = Illuminate\Support\Facades\Auth::user();
+    if(!$user) return "Silakan login sebagai dropshipper terlebih dahulu.";
+
+    // 1. Pastikan ada minimal 1 produk (buat baru jika kosong)
+    $product = \App\Models\Product::first();
+    if(!$product) {
+        $product = \App\Models\Product::create([
+            'user_id' => 1, // Asumsi ID admin/supplier
+            'category_id' => 1, 
+            'name' => 'Produk Demo Presentasi', 
+            'slug' => 'produk-demo', 
+            'price' => 150000, 
+            'stock' => 999, 
+            'description' => 'Produk contoh untuk keperluan presentasi.', 
+            'status' => 'active'
+        ]);
+    }
+
+    // ... kode produk di atas biarkan sama ...
+
+    // 2. Buat 2 Pesanan DIKEMAS
+    // PERBAIKAN: Mengganti 'processing' menjadi 'pending' (atau 'paid' sesuaikan db)
+    for($i=1; $i<=2; $i++) {
+        $o = \App\Models\Order::create([
+            'user_id' => $user->id, 
+            'order_code' => 'ORD-2024-KM-' . rand(100,999),
+            'total' => 150000, 
+            'status' => 'pending', // <--- GANTI INI DARI 'processing' KE 'pending'
+            'payment_status' => 'paid',
+            'payment_method' => 'BCA Virtual Account', 
+            'margin' => 0
+        ]);
+        \App\Models\OrderItem::create(['order_id'=>$o->id, 'product_id'=>$product->id, 'quantity'=>1, 'price'=>150000, 'subtotal'=>150000]);
+    }
+
+    // ... sisa kode ke bawah biarkan sama ...
+    // 3. Buat 2 Pesanan DIKIRIM (Status: Shipping)
+    for($i=1; $i<=2; $i++) {
+        $o = \App\Models\Order::create([
+            'user_id' => $user->id, 
+            'order_code' => 'ORD-2024-KR-' . rand(100,999),
+            'total' => 300000, 
+            'status' => 'shipping', 
+            'payment_status' => 'paid',
+            'payment_method' => 'GoPay', 
+            'resi' => 'JP' . rand(1000000000,9999999999), 
+            'margin' => 0
+        ]);
+        \App\Models\OrderItem::create(['order_id'=>$o->id, 'product_id'=>$product->id, 'quantity'=>2, 'price'=>150000, 'subtotal'=>300000]);
+    }
+
+    // 4. Buat 3 Pesanan SELESAI (Status: Completed) -> Untuk Riwayat
+    for($i=1; $i<=3; $i++) {
+        $o = \App\Models\Order::create([
+            'user_id' => $user->id, 
+            'order_code' => 'ORD-2024-SL-' . rand(100,999),
+            'total' => 450000, 
+            'status' => 'completed', 
+            'payment_status' => 'paid',
+            'payment_method' => 'Mandiri Virtual Account', 
+            'resi' => 'JP' . rand(1000000000,9999999999), 
+            'margin' => 0
+        ]);
+        \App\Models\OrderItem::create(['order_id'=>$o->id, 'product_id'=>$product->id, 'quantity'=>3, 'price'=>150000, 'subtotal'=>450000]);
+    }
+
+    return redirect()->route('dropshipper.orders')->with('success', 'Data Presentasi Siap! Silakan cek tab Dikemas, Dikirim, dan Riwayat.');
+});
+
+// Route untuk mengubah status jadi Selesai (Tombol Terima Pesanan)
+Route::get('/selesaikan-pesanan/{id}', function($id) {
+    \App\Models\Order::where('id', $id)->update(['status' => 'completed']);
+    return redirect()->back()->with('success', 'Pesanan Diterima! Data masuk ke Riwayat.');
+})->name('dropshipper.order.complete');

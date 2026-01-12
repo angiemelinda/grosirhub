@@ -3,69 +3,38 @@
 namespace App\Http\Controllers\Dropshipper;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Order;
 use App\Models\Product;
-use App\Models\Category;
 
 class DashboardController extends Controller
 {
-    /**
-     * Menampilkan halaman dashboard dropshipper
-     * Sprint 1: masih menampilkan data produk & kategori
-     */
     public function index()
     {
-        /**
-         * Ambil produk dengan stok terbanyak
-         * - with('category') → eager loading agar tidak N+1 query
-         * - status active → hanya produk aktif
-         */
-        $topProducts = Product::with('category')
-            ->where('status', 'active')
-            ->orderBy('stock', 'desc')
-            ->take(12)
-            ->get();
+        $userId = Auth::id();
+        
+        // 1. Statistik (Biarkan seperti semula)
+        $totalPesanan = Order::where('user_id', $userId)->count();
+        $totalBelanja = Order::where('user_id', $userId)->sum('total'); 
+        
+        // 2. AMBIL PRODUK UNTUK "PRODUK TERATAS"
+        // Kita ambil 8 produk terbaru yang aktif dan ada stoknya
+        $products = Product::where('status', 'active')
+                           ->where('stock', '>', 0)
+                           ->latest()
+                           ->take(8)
+                           ->get();
 
-        /**
-         * Ambil produk terbaru
-         * Digunakan untuk section "Produk Terbaru"
-         */
-        $newProducts = Product::with('category')
-            ->where('status', 'active')
-            ->orderBy('created_at', 'desc')
-            ->take(12)
-            ->get();
-
-        /**
-         * Ambil beberapa kategori untuk ditampilkan di dashboard
-         */
-        $categories = Category::orderBy('name')
-            ->take(8)
-            ->get();
-
-        /**
-         * Kirim semua data ke view dashboard
-         * View TIDAK DIUBAH → aman untuk frontend
-         */
-
-        return view('dropshipper.dashboard', [
-            'topProducts' => $topProducts,
-            'newProducts' => $newProducts,
-            'categories' => $categories
-        ]);
+        return view('dropshipper.dashboard', compact('totalPesanan', 'totalBelanja', 'products'));
     }
 
     public function profile()
     {
-        return view('dropshipper.profile');
+        $user = Auth::user();
+        return view('dropshipper.profile', compact('user'));
     }
 
-    public function tracking()
-    {
-        return view('dropshipper.tracking');
-    }
-
-    public function reports()
-    {
-        return view('dropshipper.reports');
-    }
+    public function tracking() { return view('dropshipper.tracking'); }
+    public function reports() { return view('dropshipper.reports'); }
 }

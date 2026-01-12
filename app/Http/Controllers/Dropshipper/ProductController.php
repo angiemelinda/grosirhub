@@ -3,80 +3,41 @@
 namespace App\Http\Controllers\Dropshipper;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Menampilkan halaman katalog produk
-     * Sprint 1: hanya list & filter sederhana
-     */
     public function index(Request $request)
     {
-        $query = Product::query()
-        ->with('category')
-        ->where('status', 'active');
+        // Ambil produk yang aktif dan ada stoknya
+        $query = Product::where('status', 'active')->where('stock', '>', 0);
 
-        if ($search = $request->string('search')->toString()) {
-            $query->where('name', 'like', "%{$search}%");
-        }
-
-        if ($categoryId = $request->integer('category')) {
-            $query->where('category_id', $categoryId);
+        // Filter Kategori (Jika ada)
+        if ($request->has('category_id') && $request->category_id != '') {
+            $query->where('category_id', $request->category_id);
         }
 
-        if ($min = $request->input('price_min')) {
-            $query->where('price', '>=', (float) $min);
-        }
-        if ($max = $request->input('price_max')) {
-            $query->where('price', '<=', (float) $max);
-        }
-        if ($request->boolean('in_stock')) {
-            $query->where('stock', '>', 0);
-        }
-        switch ($request->input('sort')) {
-            case 'termurah':
-                $query->orderBy('price', 'asc');
-                break;
-            case 'terbaru':
-                $query->orderBy('created_at', 'desc');
-                break;
-            case 'terlaris':
-                $query->orderBy('stock', 'desc');
-                break;
-            default:
-                $query->orderBy('name', 'asc');
+        // Fitur Pencarian
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $products = $query->paginate(12)->withQueryString();
-        $topProducts = Product::query()
-            ->where('status', 'active')
-            ->orderByDesc('stock')
-            ->limit(6)
-            ->get();
-        $categories = Category::orderBy('name')->get();
+        // Ambil data dengan pagination
+        $products = $query->latest()->paginate(12);
+        $categories = Category::all();
 
-        return view('dropshipper.catalog', compact('products', 'categories', 'topProducts'));
+        return view('dropshipper.catalog', compact('products', 'categories'));
     }
 
-    /**
-     * Menampilkan detail satu produk
-     */
     public function show($id)
     {
-        /**
-         * Cari produk berdasarkan ID
-         * firstOrFail → jika tidak ada, otomatis 404
-         */
-        $product = Product::with('category')
-            ->where('status', 'active')
-            ->findOrFail($id);
-
-        /**
-         * Tampilkan halaman detail produk
-         */
-        return view('dropshipper.product-show', compact('product'));
+        $product = Product::findOrFail($id);
+        // Pastikan view detail produk ada, atau arahkan kembali ke katalog
+        if (view()->exists('dropshipper.product-show')) {
+            return view('dropshipper.product-show', compact('product'));
+        }
+        return view('dropshipper.catalog-detail', compact('product')); // Fallback nama file view
     }
 }

@@ -5,99 +5,108 @@ namespace App\Http\Controllers\Supplier;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Order;     // Pastikan Model Order ada
-use App\Models\Product;   // Pastikan Model Product ada
+use App\Models\Order;
+use App\Models\OrderItem;
 
 class PesananController extends Controller
 {
-    // ==========================================================
-    // MENU 3: ORDER MASUK
-    // (Menampilkan order yang baru masuk atau sudah dibayar, tapi belum diproses)
-    // ==========================================================
+    // === 1. HALAMAN ORDER MASUK ===
     public function orderMasuk()
     {
         $supplierId = Auth::id();
 
-        // Ambil order yang statusnya masih 'menunggu_pembayaran' atau 'sudah_dibayar'
-        // dan mengandung produk milik supplier ini
-        $orders = Order::whereHas('items.product', function($q) use ($supplierId) {
-            $q->where('user_id', $supplierId);
+        // CARI ORDER YANG MENGANDUNG PRODUK MILIK SUPPLIER INI
+        $orders = Order::whereHas('items.product', function($query) use ($supplierId) {
+            $query->where('user_id', $supplierId);
         })
-        ->whereIn('status', ['belum_dibayar', 'sudah_dibayar']) // Filter Status
-        ->with(['user', 'items.product'])
+        ->where('payment_status', 'paid') // Hanya yang sudah dibayar
+        ->where('status', 'processing')   // Hanya yang statusnya 'Perlu Dikemas'
+        ->with(['user', 'items' => function($query) use ($supplierId) {
+            // Eager load items, tapi filter hanya produk milik supplier ini saja
+            // Supaya supplier tidak melihat barang milik supplier lain dalam order yang sama
+            $query->whereHas('product', function($q) use ($supplierId) {
+                $q->where('user_id', $supplierId);
+            })->with('product');
+        }])
         ->latest()
         ->get();
 
-        return view('supplier.pesanan.order_masuk', compact('orders'));
+        return view('supplier.order.masuk', compact('orders'));
     }
 
-    // Fungsi untuk tombol "Konfirmasi Diproses" (Masuk ke Menu Pengiriman)
+    // === 2. KONFIRMASI / PROSES PESANAN ===
     public function konfirmasiProses($id)
     {
-        $order = Order::findOrFail($id);
+        // Ubah status order menjadi 'shipping' (Dikirim)
+        // Catatan: Dalam sistem real, ini biasanya parsial per item, 
+        // tapi untuk simulasi kita update status Order utamanya.
         
-        // Ubah status menjadi 'dikemas' agar pindah ke menu Pengiriman
-        $order->status = 'dikemas';
-        $order->save();
+        $order = Order::find($id);
+        
+        if($order) {
+            $order->status = 'shipping'; // Ubah ke Dikirim
+            $order->save();
+            return redirect()->back()->with('success', 'Pesanan diterima dan status diubah menjadi Dikirim.');
+        }
 
-        return redirect()->route('supplier.pengiriman')->with('success', 'Order dikonfirmasi & masuk ke menu Pengiriman.');
+        return redirect()->back()->with('error', 'Pesanan tidak ditemukan.');
     }
 
-
-    // ==========================================================
-    // MENU 4: PENGIRIMAN
-    // (Menampilkan order yang sedang dikemas atau dikirim + Input Resi)
-    // ==========================================================
+    // === 3. HALAMAN PENGIRIMAN (INPUT RESI) ===
     public function pengiriman()
     {
         $supplierId = Auth::id();
 
-        // Ambil order yang statusnya 'dikemas' atau 'dikirim'
-        $orders = Order::whereHas('items.product', function($q) use ($supplierId) {
-            $q->where('user_id', $supplierId);
+        // Cari order yang statusnya 'shipping' (Sedang Dikirim/Butuh Resi)
+        $orders = Order::whereHas('items.product', function($query) use ($supplierId) {
+            $query->where('user_id', $supplierId);
         })
-        ->whereIn('status', ['dikemas', 'dikirim']) // Filter Status
+        ->where('status', 'shipping')
         ->with(['user', 'items.product'])
         ->latest()
         ->get();
 
-        return view('supplier.pesanan.pengiriman', compact('orders'));
+        return view('supplier.order.pengiriman', compact('orders'));
     }
 
-    // Fungsi untuk Input Nomor Resi
+    // === 4. PROSES INPUT RESI ===
     public function inputResi(Request $request, $id)
     {
         $request->validate([
-            'resi' => 'required|string',
+            'resi' => 'required|string|max:50'
         ]);
 
-        $order = Order::findOrFail($id);
+        $order = Order::find($id);
         
-        $order->update([
-            'resi' => $request->resi,
-            'status' => 'dikirim', // Otomatis ubah status jadi dikirim
-        ]);
+        if($order) {
+            $order->resi = $request->resi;
+            $order->status = 'completed'; // Simulasi: Input resi langsung dianggap Selesai/Terkirim
+            $order->save();
+            return redirect()->back()->with('success', 'Resi berhasil diinput. Pesanan Selesai.');
+        }
 
-        return back()->with('success', 'Resi berhasil diinput.');
+        return redirect()->back()->with('error', 'Gagal input resi.');
     }
 
-
-    // ==========================================================
-    // MENU 5: RIWAYAT TRANSAKSI
-    // (Menampilkan order yang sudah selesai)
-    // ==========================================================
+    // === 5. RIWAYAT ===
     public function riwayat()
     {
         $supplierId = Auth::id();
-
-        $orders = Order::whereHas('items.product', function($q) use ($supplierId) {
-            $q->where('user_id', $supplierId);
+        
+        $orders = Order::whereHas('items.product', function($query) use ($supplierId) {
+            $query->where('user_id', $supplierId);
         })
-        ->where('status', 'selesai') // Filter Status Selesai
+        ->where('status', 'completed')
         ->with(['user', 'items.product'])
         ->latest()
         ->get();
 
-        return view('supplier.pesanan.riwayat', compact('orders'));
+        return view('supplier.order.riwayat', compact('orders'));
+    }
+    
+    // Placeholder Show (Detail) agar tidak error route
+    public function show($id) {
+        // Bisa dibuat view detail jika perlu
+        return redirect()->route('supplier.order.masuk');
     }
 }

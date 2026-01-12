@@ -1,329 +1,105 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GrosirHub - Belanja Grosir Online</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#f97316',
-                        'primary-dark': '#ea580c',
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-gray-50">
-    <!-- Top Navigation -->
-    <nav class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <!-- Logo -->
-                <div class="flex-shrink-0">
-                    <a href="#" class="text-2xl font-bold text-primary">GrosirHub</a>
-                </div>
+@extends('layouts.dropshipper')
 
-                <!-- Navigation Menu -->
-                <div class="hidden md:flex items-center space-x-6">
-                    <a href="{{ route('dropshipper.dashboard') }}" class="text-primary font-medium border-b-2 border-primary pb-1">Beranda</a>
-                    <a href="{{ route('dropshipper.catalog') }}" class="text-gray-700 hover:text-primary font-medium">Produk</a>
-                    <a href="{{ route('dropshipper.orders') }}" class="text-gray-700 hover:text-primary font-medium">Pesanan</a>
-                    <a href="{{ route('dropshipper.order-history') }}" class="text-gray-700 hover:text-primary font-medium">Riwayat</a>
-                </div>
+@section('title', 'Dashboard Dropshipper')
 
-                <!-- Right Section with Search and Icons -->
-                <div class="flex items-center space-x-4">
-                    <!-- Search Bar -->
-                    <div class="hidden md:block w-64">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                            <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Cari produk...">
-                        </div>
-                    </div>
-
-                    <!-- Icons -->
-                    <div class="flex items-center space-x-4">
-                        <a href="{{ route('dropshipper.cart') }}" class="text-gray-700 hover:text-primary relative">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                            </svg>
-                            <span class="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-                        </a>
-                        <div class="relative group">
-                            <button class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-medium cursor-pointer">
-                                JD
-                            </button>
-                            <!-- Dropdown menu -->
-                            <div class="hidden group-hover:block absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                                <a href="{{ route('dropshipper.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profil Saya</a>
-                                <a href="{{ route('dropshipper.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Pengaturan Akun</a>
-                                <form method="POST" action="{{ route('logout') }}" class="block">
-                                    @csrf
-                                    <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Keluar</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+@section('content')
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-slide-down">
+        <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg md:col-span-3 lg:col-span-1 relative overflow-hidden">
+            <div class="relative z-10">
+                <h2 class="text-2xl font-bold font-display mb-1">Halo, {{ Auth::user()->name }}! 👋</h2>
+                <p class="text-orange-100 text-sm mb-4">Siap kebanjiran orderan hari ini?</p>
+                <a href="{{ route('dropshipper.catalog') }}" class="inline-block bg-white text-orange-600 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-orange-50 transition">
+                    Mulai Belanja
+                </a>
+            </div>
+            <div class="absolute right-0 bottom-0 opacity-20 transform translate-x-4 translate-y-4">
+                <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M20 7h-4v-3c0-2.209-1.791-4-4-4s-4 1.791-4 4v3h-4l-2 17h20l-2-17zm-11-3c0-1.654 1.346-3 3-3s3 1.346 3 3v3h-6v-3zm-4.751 15l1.529-13h12.444l1.529 13h-15.502z"/></svg>
             </div>
         </div>
 
-        <!-- Mobile Search Bar -->
-        <div class="md:hidden px-4 pb-4">
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Cari produk...">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-4">
+            <div class="p-3 bg-blue-50 rounded-full text-blue-600">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Total Pesanan</p>
+                <h3 class="text-2xl font-bold text-gray-800">{{ $totalPesanan }}</h3>
             </div>
         </div>
 
-        <!-- Mobile Bottom Navigation -->
-        <div class="md:hidden bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 z-50">
-            <div class="flex justify-around items-center h-16">
-                <a href="{{ route('dropshipper.dashboard') }}" class="flex flex-col items-center justify-center text-primary transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                    </svg>
-                    <span class="text-xs mt-1">Beranda</span>
-                </a>
-                <a href="{{ route('dropshipper.catalog') }}" class="flex flex-col items-center justify-center text-gray-700 hover:text-primary transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                    </svg>
-                    <span class="text-xs mt-1">Produk</span>
-                </a>
-                <a href="{{ route('dropshipper.orders') }}" class="flex flex-col items-center justify-center text-gray-700 hover:text-primary transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
-                    <span class="text-xs mt-1">Pesanan</span>
-                </a>
-                <a href="{{ route('dropshipper.order-history') }}" class="flex flex-col items-center justify-center text-gray-700 hover:text-primary transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
-                    <span class="text-xs mt-1">Riwayat</span>
-                </a>
-                <a href="{{ route('dropshipper.cart') }}" class="flex flex-col items-center justify-center text-gray-700 hover:text-primary transition">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                    </svg>
-                    <span class="text-xs mt-1">Keranjang</span>
-                </a>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-4">
+            <div class="p-3 bg-green-50 rounded-full text-green-600">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-gray-500 text-sm">Total Pengeluaran</p>
+                <h3 class="text-2xl font-bold text-gray-800">Rp {{ number_format($totalBelanja, 0, ',', '.') }}</h3>
             </div>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- Hero Banner -->
-        <div class="mb-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl overflow-hidden">
-            <div class="flex items-center justify-between p-8 md:p-12">
-                <div class="text-white max-w-xl">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Belanja Grosir dengan Harga Terbaik!</h2>
-                    <p class="text-lg mb-6 text-orange-100">Dapatkan produk berkualitas langsung dari supplier terpercaya. Minimum order rendah, profit maksimal!</p>
-                    <button class="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition">Mulai Belanja</button>
-                </div>
-                <div class="hidden md:block">
-                    <div class="w-64 h-64 bg-white/20 rounded-full"></div>
-                </div>
-            </div>
-        </div>
+    <div class="mb-6 flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-900 font-display">Produk Teratas</h2>
+        <a href="{{ route('dropshipper.catalog') }}" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1">
+            Lihat Semua <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+        </a>
+    </div>
 
-        <!-- Top Products -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-bold text-gray-900">Produk Teratas</h3>
-                <a href="{{ route('dropshipper.catalog') }}" class="flex items-center text-primary hover:text-primary-dark">
-                    <span class="mr-1">Lihat Semua</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                    </svg>
-                </a>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <div class="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                    <div class="relative">
-                        <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
-                        <div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-35%</div>
-                        <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-3">
-                        <h4 class="font-medium text-gray-900 text-sm mb-2 line-clamp-2">Kaos Polos Premium Cotton Combed 30s</h4>
-                        <div class="mb-2">
-                            <div class="text-xs text-gray-400 line-through">Rp 45.000</div>
-                            <div class="text-lg font-bold text-primary">Rp 29.000</div>
-                        </div>
-                        <div class="text-xs text-gray-600 mb-3">Min. order 20 pcs</div>
-                        <button class="w-full bg-primary text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition">+ Keranjang</button>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                    <div class="relative">
-                        <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
-                        <div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-40%</div>
-                        <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-3">
-                        <h4 class="font-medium text-gray-900 text-sm mb-2 line-clamp-2">Totebag Canvas Premium Printing Custom</h4>
-                        <div class="mb-2">
-                            <div class="text-xs text-gray-400 line-through">Rp 35.000</div>
-                            <div class="text-lg font-bold text-primary">Rp 21.000</div>
-                        </div>
-                        <div class="text-xs text-gray-600 mb-3">Min. order 50 pcs</div>
-                        <button class="w-full bg-primary text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition">+ Keranjang</button>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                    <div class="relative">
-                        <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
-                        <div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-25%</div>
-                        <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-3">
-                        <h4 class="font-medium text-gray-900 text-sm mb-2 line-clamp-2">Powerbank 10000mAh Fast Charging Type-C</h4>
-                        <div class="mb-2">
-                            <div class="text-xs text-gray-400 line-through">Rp 80.000</div>
-                            <div class="text-lg font-bold text-primary">Rp 60.000</div>
-                        </div>
-                        <div class="text-xs text-gray-600 mb-3">Min. order 10 pcs</div>
-                        <button class="w-full bg-primary text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition">+ Keranjang</button>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                    <div class="relative">
-                        <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
-                        <div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-30%</div>
-                        <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-3">
-                        <h4 class="font-medium text-gray-900 text-sm mb-2 line-clamp-2">Serum Wajah Vitamin C + Hyaluronic Acid</h4>
-                        <div class="mb-2">
-                            <div class="text-xs text-gray-400 line-through">Rp 55.000</div>
-                            <div class="text-lg font-bold text-primary">Rp 38.500</div>
-                        </div>
-                        <div class="text-xs text-gray-600 mb-3">Min. order 12 pcs</div>
-                        <button class="w-full bg-primary text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition">+ Keranjang</button>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                    <div class="relative">
-                        <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
-                        <div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-45%</div>
-                        <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-3">
-                        <h4 class="font-medium text-gray-900 text-sm mb-2 line-clamp-2">Jam Tangan Fashion Stainless Steel Analog</h4>
-                        <div class="mb-2">
-                            <div class="text-xs text-gray-400 line-through">Rp 120.000</div>
-                            <div class="text-lg font-bold text-primary">Rp 66.000</div>
-                        </div>
-                        <div class="text-xs text-gray-600 mb-3">Min. order 5 pcs</div>
-                        <button class="w-full bg-primary text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition">+ Keranjang</button>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group">
-                    <div class="relative">
-                        <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200"></div>
-                        <div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-50%</div>
-                        <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="p-3">
-                        <h4 class="font-medium text-gray-900 text-sm mb-2 line-clamp-2">Sandal Jepit Karet Premium Anti Slip</h4>
-                        <div class="mb-2">
-                            <div class="text-xs text-gray-400 line-through">Rp 20.000</div>
-                            <div class="text-lg font-bold text-primary">Rp 10.000</div>
-                        </div>
-                        <div class="text-xs text-gray-600 mb-3">Min. order 100 pcs</div>
-                        <button class="w-full bg-primary text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition">+ Keranjang</button>
-                    </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @forelse($products as $product)
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg transition duration-300 flex flex-col h-full overflow-hidden group">
+            
+            <div class="relative h-48 bg-gray-50 overflow-hidden">
+                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover transform group-hover:scale-105 transition duration-500">
+                <div class="absolute top-2 right-2">
+                    <span class="bg-white/90 backdrop-blur text-gray-700 text-[10px] font-bold px-2 py-1 rounded shadow-sm border">
+                        Stok: {{ $product->stock }}
+                    </span>
                 </div>
             </div>
-        </div>
 
-        <!-- My Orders Section -->
-        <div class="mb-8 bg-gradient-to-r from-orange-50 to-white rounded-xl p-6 border border-orange-100">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-bold text-gray-900">Pesanan Saya</h3>
-                <a href="#" class="text-primary hover:text-primary-dark font-medium">Lihat Semua →</a>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition cursor-pointer">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="text-gray-600 text-sm">Belum Bayar</div>
-                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <span class="text-yellow-600 font-bold text-lg">2</span>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500">Segera selesaikan pembayaran</p>
+            <div class="p-4 flex flex-col flex-1">
+                <div class="text-xs text-gray-500 mb-1">{{ $product->category->name ?? 'Umum' }}</div>
+                <h4 class="font-bold text-gray-900 text-sm mb-2 line-clamp-2 leading-tight flex-1">
+                    {{ $product->name }}
+                </h4>
+                
+                <div class="mb-3">
+                    <span class="text-lg font-bold text-primary font-display">
+                        Rp {{ number_format($product->price, 0, ',', '.') }}
+                    </span>
+                    <span class="text-xs text-gray-400">/pcs</span>
                 </div>
-                <div class="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition cursor-pointer">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="text-gray-600 text-sm">Dikemas</div>
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span class="text-blue-600 font-bold text-lg">5</span>
-                        </div>
+
+                <div class="bg-gray-50 rounded-lg p-2 mb-3 border border-gray-100">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-gray-500">Min. Order:</span>
+                        {{-- UPDATE DISINI JADI 15 --}}
+                        <span class="font-bold text-gray-800">{{ $product->min_order ?? 15 }} pcs</span>
                     </div>
-                    <p class="text-xs text-gray-500">Pesanan sedang disiapkan</p>
                 </div>
-                <div class="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition cursor-pointer">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="text-gray-600 text-sm">Dikirim</div>
-                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                            <span class="text-purple-600 font-bold text-lg">8</span>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500">Dalam perjalanan ke pelanggan</p>
-                </div>
-                <div class="bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition cursor-pointer">
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="text-gray-600 text-sm">Selesai</div>
-                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                            <span class="text-green-600 font-bold text-lg">127</span>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500">Pesanan telah diterima</p>
-                </div>
+
+                <form action="{{ route('dropshipper.cart.add') }}" method="POST" class="mt-auto">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    {{-- Default Quantity = 15 --}}
+                    <input type="hidden" name="quantity" value="{{ $product->min_order ?? 15 }}">
+
+                    <button type="submit" class="w-full bg-primary text-white py-2 rounded-lg text-sm font-semibold hover:bg-primary-dark transition flex items-center justify-center gap-2 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Keranjang
+                    </button>
+                </form>
             </div>
         </div>
-    </main>
-</body>
-</html>
-                  
+        @empty
+        <div class="col-span-full py-12 text-center text-gray-500">
+            Belum ada produk yang tersedia saat ini.
+        </div>
+        @endforelse
+    </div>
+
+</div>
+@endsection
