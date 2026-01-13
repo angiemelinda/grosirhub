@@ -44,8 +44,8 @@ class PesananController extends Controller
         $order = Order::find($id);
         
         if($order) {
-            $order->status = 'shipping'; // Ubah ke Dikirim
-            $order->save();
+           $order->status = 'shipping';
+           $order->save();
             return redirect()->back()->with('success', 'Pesanan diterima dan status diubah menjadi Dikirim.');
         }
 

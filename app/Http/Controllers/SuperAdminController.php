@@ -176,9 +176,11 @@ class SuperAdminController extends Controller
      */
     public function transactions()
     {
-        $transactions = Order::with('user')
-            ->orderBy('created_at', 'desc')
+        $transactions = Order::where('payment_status', 'paid')
+            ->with('user')
+            ->latest()
             ->paginate(15);
+
         
         return view('superadmin.transactions', compact('transactions'));
     }

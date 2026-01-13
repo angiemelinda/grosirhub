@@ -33,7 +33,7 @@
                             </td>
                             <td>{{ strtoupper($order->courier ?? '-') }}</td>
                             <td>
-                                @if($order->status == 'dikemas')
+                                @if($order->status == 'processing')
                                     <span class="badge badge-warning">Sedang Dikemas</span>
                                 @else
                                     <span class="badge badge-info">Sedang Dikirim</span>
@@ -41,19 +41,15 @@
                             </td>
                             
                             {{-- FORM INPUT RESI --}}
-                            <form action="{{ route('supplier.order.input_resi', $order->id) }}" method="POST">
-                                @csrf
-                                <td>
-                                    <input type="text" name="resi" class="form-control form-control-sm" 
-                                           placeholder="Masukkan No Resi" 
-                                           value="{{ $order->resi }}">
-                                </td>
-                                <td>
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="fas fa-save"></i> Simpan Resi
-                                    </button>
-                                </td>
-                            </form>
+                             <td>
+                                <form action="{{ route('supplier.order.input_resi', $order->id) }}" method="POST">
+                                    @csrf
+                                    <input type="text" name="resi" class="form-control form-control-sm">
+                            </td>
+                            <td>
+                                    <button type="submit" class="btn btn-success btn-sm">Simpan</button>
+                                </form>
+                            </td>
                         </tr>
                         @empty
                         <tr>

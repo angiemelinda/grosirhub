@@ -14,7 +14,7 @@
         <div class="p-8">
             <form action="{{ route('dropshipper.payment.process') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="total_amount" value="{{ $totalHarga }}">
+                <input type="hidden" name="grand_total" id="grandTotal">
                 <input type="hidden" name="selected_ids" value="{{ implode(',', array_column($selectedProducts, 'id')) }}">
 
                 <!-- Informasi Pengiriman -->
@@ -190,6 +190,7 @@
         
         // Update tampilan total
         document.getElementById('totalAmount').textContent = formatRupiah(total);
+        document.getElementById('grandTotal').value = total;
     }
 
     function formatRupiah(amount) {
@@ -243,5 +244,7 @@
         document.getElementById('shippingCostDisplay').textContent = 'Rp 0';
         document.getElementById('platformFeeDisplay').textContent = formatRupiah(platformFee);
     });
+
+
 </script>
 @endsection

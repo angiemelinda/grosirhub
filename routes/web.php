@@ -238,6 +238,11 @@ Route::middleware(['auth', 'role:dropshipper'])->prefix('dropshipper')->name('dr
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
     Route::get('/order/{id}', [OrderController::class, 'orderShow'])->name('order.show');
     Route::get('/order-history', [OrderController::class, 'orderHistory'])->name('order-history');
+    Route::post('/orders/{id}/complete', [OrderController::class, 'completeOrder'])
+            ->name('order.complete');
+    Route::post('/order/{id}/confirm-payment', [OrderController::class, 'confirmPayment'])->name('dropshipper.order.confirm');
+    
+
     
     // === KERANJANG BELANJA (YANG DIPERBAIKI) ===
     Route::get('/cart', [OrderController::class, 'cart'])->name('cart');

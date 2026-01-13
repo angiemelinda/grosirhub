@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Transaction;
 
 class OrderController extends Controller
 {
@@ -18,8 +19,8 @@ class OrderController extends Controller
         $orders = Order::where('user_id', Auth::id())->where('status', '!=', 'completed')->latest()->get();
         // Hitung manual badge
         $counts = [
-            'unpaid' => 0, 
-            'processing' => $orders->where('status', 'pending')->count(),
+            'pending' => $orders->where('payment_status','pending')->count(),
+            'processing' => $orders->where('status', 'processing')->count(),
             'shipping' => $orders->where('status', 'shipping')->count(),
             'completed' => Order::where('user_id', Auth::id())->where('status', 'completed')->count(),
         ];
@@ -50,7 +51,7 @@ class OrderController extends Controller
 
     public function orderShow($id) {
         $order = Order::where('user_id', Auth::id())->findOrFail($id);
-        return view('dropshipper.order-show', compact('order'));
+        return view('shared.order-show', compact('order'));
     }
 
     public function cart() {
@@ -137,7 +138,7 @@ class OrderController extends Controller
                 'shipping_postal_code' => 'required|string|max:10',
                 'shipping_cost' => 'required|numeric|min:0',
                 'platform_fee' => 'required|numeric|min:0',
-                'total_amount' => 'required|numeric|min:0',
+                'grand_total' => 'required|numeric|min:0',
                 'selected_ids' => 'required|string',
                 'payment_method' => 'nullable|string|max:50',
                 'proof_of_payment' => 'nullable|file|mimes:jpg,jpeg,png|max:2048'
@@ -164,7 +165,6 @@ class OrderController extends Controller
                         'quantity' => $cart[$id]['quantity'],
                         'price' => $cart[$id]['price'],
                         'subtotal' => $cart[$id]['price'] * $cart[$id]['quantity'],
-                        'supplier_id' => $cart[$id]['supplier_id'],
                         'created_at' => now(),
                         'updated_at' => now()
                     ];
@@ -198,7 +198,7 @@ class OrderController extends Controller
                     'order_code' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(\Str::random(6)),
                     'total' => $productTotal,
                     'status' => 'processing',
-                    'payment_status' => 'pending',
+                    'payment_status' => 'paid',
                     'payment_method' => $validated['payment_method'] ?? 'Transfer Manual',
                     'payment_proof' => $proofPath,
                     'margin' => 0,
@@ -281,6 +281,43 @@ class OrderController extends Controller
             
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan tidak terduga. Silakan coba lagi. ' . $e->getMessage());
+        }
+    }
+    public function confirmPayment($id)
+    {
+        $order = Order::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // Validasi hanya bisa konfirmasi jika masih pending
+        if ($order->payment_status !== 'paid') {
+            return back()->with('error', 'Pembayaran sudah dikonfirmasi.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 1. Update status pembayaran
+            $order->update([
+                'payment_status' => 'paid',
+                'status' => 'processing'
+            ]);
+
+            // 2. (OPSIONAL TAPI DISARANKAN) Simpan ke tabel transaksi
+            Transaction::create([
+                'order_id' => $order->id,
+                'user_id' => $order->user_id,
+                'amount' => $order->grand_total,
+                'status' => 'success',
+                'created_at' => now()
+            ]);
+
+            DB::commit();
+            return redirect()->route('dropshipper.order')
+                ->with('success', 'Pembayaran berhasil dikonfirmasi');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal konfirmasi pembayaran');
         }
     }
 }

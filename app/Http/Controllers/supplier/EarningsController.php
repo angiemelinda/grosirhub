@@ -18,7 +18,7 @@ class EarningsController extends Controller
         
         // Get completed orders (pesanan)
         $completedPesanan = Pesanan::where('supplier_id', $supplierId)
-            ->where('status', 'selesai')
+            ->where('status', 'completed')
             ->get();
         
         $totalEarnings = $completedPesanan->sum('total_harga');
@@ -28,10 +28,10 @@ class EarningsController extends Controller
         
         $orderItems = OrderItem::whereIn('product_id', $supplierProducts)
             ->with(['order' => function($query) {
-                $query->where('payment_status', 'sudah_dibayar');
+                $query->where('payment_status', 'paid');
             }])
             ->whereHas('order', function($query) {
-                $query->where('payment_status', 'sudah_dibayar');
+                $query->where('payment_status', 'paid');
             })
             ->get();
         
@@ -45,7 +45,7 @@ class EarningsController extends Controller
             $monthEnd = $month->copy()->endOfMonth();
             
             $pesananMonthly = Pesanan::where('supplier_id', $supplierId)
-                ->where('status', 'selesai')
+                ->where('status', 'completed')
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->sum('total_harga');
             

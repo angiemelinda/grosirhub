@@ -159,7 +159,7 @@
                             </div>
                             <div>
                                 <div class="font-medium text-gray-800">
-                                    Andi Pratama
+                                    {{ $order->user->name ?? '-' }}
                                 </div>
                                 <div class="text-xs text-gray-400">
                                     Pemesan
@@ -192,11 +192,11 @@
                     <td class="px-6 py-5 text-center">
                         @php
                             $statusColor = match($order->status) {
-                                'baru'       => 'bg-yellow-100 text-yellow-700',
-                                'diproses'   => 'bg-blue-100 text-blue-700',
-                                'dikirim'    => 'bg-orange-100 text-orange-700',
-                                'selesai'    => 'bg-green-100 text-green-700',
-                                'dibatalkan' => 'bg-red-100 text-red-700',
+                                'pending'       => 'bg-yellow-100 text-yellow-700',
+                                'processing'   => 'bg-blue-100 text-blue-700',
+                                'packing'    => 'bg-orange-100 text-orange-700',
+                                'shipping'    => 'bg-green-100 text-green-700',
+                                'completed' => 'bg-green-100 text-green-700',
                                 default      => 'bg-gray-100 text-gray-600'
                             };
                         @endphp
@@ -214,7 +214,7 @@
                                 Detail
                             </a>
 
-                            @if(!in_array($order->status, ['selesai','dibatalkan']))
+                            @if(!in_array($order->status, ['completed','cancelled']))
                             <a href="{{ route('supplier.pesanan.proses', $order->id) }}"
                                class="px-3 py-1.5 rounded-lg bg-orange-500 text-white hover:bg-orange-600 transition text-xs">
                                 Proses

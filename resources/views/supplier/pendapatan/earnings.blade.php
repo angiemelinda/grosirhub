@@ -50,7 +50,10 @@
         <div class="h-64 flex items-end justify-between gap-2">
             @foreach($monthlyEarnings as $earning)
             <div class="flex-1 flex flex-col items-center">
-                <div class="w-full bg-orange-500 rounded-t" style="height: {{ $earning['total'] > 0 ? ($earning['total'] / max(array_column($monthlyEarnings, 'total')) * 200) : 10 }}px;"></div>
+                @php
+                    $maxMonthly = max(array_column($monthlyEarnings ?? [], 'total')) ?: 1;
+                @endphp
+                <div class="w-full bg-orange-500 rounded-t" style="height: {{ $earning['total'] > 0 ? ($earning['total'] / $maxMonthly * 200) : 10 }}px;"></div>
                 <p class="text-xs text-gray-600 mt-2 text-center">{{ $earning['month'] }}</p>
                 <p class="text-xs font-semibold text-gray-800 mt-1">Rp {{ number_format($earning['total'], 0, ',', '.') }}</p>
             </div>

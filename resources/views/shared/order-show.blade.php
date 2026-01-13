@@ -151,13 +151,13 @@
                 Kembali
             </a>
             
-            @if(auth()->user()->hasRole('dropshipper') && $order->status === 'pending')
+            @if(auth()->user()->role === 'dropshipper' && $order->payment_status === 'pending')
                 <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
                     Upload Bukti Pembayaran
                 </a>
             @endif
             
-            @if(auth()->user()->hasRole('supplier') && $order->status === 'processing')
+            @if(auth()->user()->role === 'supplier' && $order->status === 'processing')
                 <form action="{{ route('supplier.order.konfirmasi', $order->id) }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
@@ -166,7 +166,7 @@
                 </form>
             @endif
             
-            @if(auth()->user()->hasRole('admin') && $order->status === 'pending')
+            @if(auth()->user()->role === 'admin' && $order->status === 'pending')
                 <form action="{{ route('admin.orders.approve', $order->id) }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
