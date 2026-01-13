@@ -15,7 +15,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('supplier.produk.store') }}">
+    <form method="POST" action="{{ route('supplier.produk.store') }}" enctype="multipart/form-data">
         @csrf
         <div class="space-y-4">
             <div>
@@ -42,6 +42,12 @@
                     <label class="block mb-1 font-medium text-gray-700">Stok <span class="text-red-500">*</span></label>
                     <input type="number" name="stock" value="{{ old('stock') }}" min="0" class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent" placeholder="0" required>
                 </div>
+            </div>
+            
+            <div>
+                <label class="block mb-1 font-medium text-gray-700">Gambar Produk</label>
+                <input type="file" name="image" class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-orange-500 focus:border-transparent" accept="image/*">
+                <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, GIF (Maks. 2MB)</p>
             </div>
             
             <div>

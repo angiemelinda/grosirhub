@@ -250,7 +250,7 @@ Route::middleware(['auth', 'role:dropshipper'])->prefix('dropshipper')->name('dr
     // Checkout
 
     // Alur Checkout Baru
-    Route::post('/checkout', [OrderController::class, 'checkoutPage'])->name('checkout'); // Ke Halaman Upload
+    Route::match(['get', 'post'], '/checkout', [OrderController::class, 'checkoutPage'])->name('checkout'); // Ke Halaman Upload
     Route::post('/payment/process', [OrderController::class, 'processPayment'])->name('payment.process'); // Proses Upload & Simpan
 
     // API Dummy

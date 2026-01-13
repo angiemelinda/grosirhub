@@ -17,6 +17,14 @@ class Order extends Model
         'courier',
         'resi',
         'snap_token',
+        'shipping_name',
+        'shipping_phone',
+        'shipping_address',
+        'shipping_city',
+        'shipping_postal_code',
+        'shipping_cost',
+        'platform_fee',
+        'grand_total'
     ];
 
 

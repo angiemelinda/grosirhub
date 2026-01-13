@@ -47,11 +47,12 @@
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-            <h2 class="font-bold text-gray-900 text-lg">Daftar Transaksi Selesai</h2>
-            <button class="text-sm text-gray-500 hover:text-primary flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                Filter
-            </button>
+            <h2 class="font-bold text-gray-900 text-lg">Daftar Semua Transaksi</h2>
+            <div class="flex items-center space-x-2">
+                <a href="{{ route('dropshipper.orders') }}" class="text-sm bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition">Pesanan Aktif</a>
+                <span class="text-gray-300">|</span>
+                <a href="{{ route('dropshipper.order-history') }}" class="text-sm text-orange-600 font-medium">Riwayat Pesanan</a>
+            </div>
         </div>
 
         <div class="divide-y divide-gray-100">
@@ -59,17 +60,37 @@
                 <div class="p-6 hover:bg-gray-50 transition">
                     <div class="flex flex-wrap justify-between items-start gap-4 mb-4">
                         <div class="flex items-center gap-3">
-                            <div class="p-2 bg-green-100 text-green-600 rounded-lg">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            @php
+                                $statusColors = [
+                                    'pending' => ['bg-yellow-100 text-yellow-600', 'Menunggu Pembayaran'],
+                                    'processing' => ['bg-blue-100 text-blue-600', 'Diproses'],
+                                    'shipping' => ['bg-indigo-100 text-indigo-600', 'Dikirim'],
+                                    'completed' => ['bg-green-100 text-green-600', 'Selesai'],
+                                    'cancelled' => ['bg-red-100 text-red-600', 'Dibatalkan']
+                                ];
+                                $status = $statusColors[$order->status] ?? $statusColors['pending'];
+                            @endphp
+                            <div class="p-2 {{ $status[0] }} rounded-lg">
+                                @if($order->status === 'completed')
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                @elseif($order->status === 'processing')
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                @elseif($order->status === 'shipping')
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>
+                                @elseif($order->status === 'cancelled')
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                @else
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                @endif
                             </div>
                             <div>
                                 <p class="font-bold text-gray-900 text-sm">{{ $order->order_code }}</p>
-                                <p class="text-xs text-gray-500">{{ $order->created_at->format('d M Y') }} • Selesai</p>
+                                <p class="text-xs text-gray-500">{{ $order->created_at->format('d M Y') }} • {{ $status[1] }}</p>
                             </div>
                         </div>
                         <div class="text-right">
                             <p class="text-xs text-gray-500">Total Belanja</p>
-                            <p class="font-bold text-gray-900">Rp {{ number_format($order->total, 0, ',', '.') }}</p>
+                            <p class="font-bold text-gray-900">Rp {{ number_format($order->grand_total, 0, ',', '.') }}</p>
                         </div>
                     </div>
 

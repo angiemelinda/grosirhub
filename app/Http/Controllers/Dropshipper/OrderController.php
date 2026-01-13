@@ -27,8 +27,24 @@ class OrderController extends Controller
     }
 
     public function orderHistory() {
-        $orders = Order::where('user_id', Auth::id())->where('status', 'completed')->latest()->get();
-        $stats = ['total_orders' => $orders->count(), 'total_spend' => $orders->sum('total'), 'items_bought' => 0];
+        $orders = Order::where('user_id', Auth::id())
+            ->with('items')
+            ->latest()
+            ->get();
+            
+        // Hitung statistik
+        $totalOrders = $orders->count();
+        $totalSpend = $orders->sum('grand_total');
+        $itemsBought = $orders->sum(function($order) {
+            return $order->items->sum('quantity');
+        });
+        
+        $stats = [
+            'total_orders' => $totalOrders,
+            'total_spend' => $totalSpend,
+            'items_bought' => $itemsBought
+        ];
+        
         return view('dropshipper.order-history', compact('orders', 'stats'));
     }
 
@@ -108,70 +124,163 @@ class OrderController extends Controller
     // === 4. PROSES BAYAR "ANTI GAGAL" ===
     public function processPayment(Request $request)
     {
-        // Safety check
-        $cart = Session::get('cart');
-        if(!$cart || !$request->selected_ids) {
-             return redirect()->route('dropshipper.orders'); 
-        }
-
-        $selectedIds = explode(',', $request->selected_ids);
-
-        // --- LOGIC UPLOAD GAMBAR (BYPASS ERROR) ---
-        // Kita set default. Jika upload gagal, database tetap terisi string ini.
-        $proofPath = 'payments/bukti-otomatis.jpg'; 
+        // Enable query logging for debugging
+        \DB::enableQueryLog();
         
-        if ($request->hasFile('proof_of_payment')) {
-            try {
-                // Coba simpan file asli
-                $proofPath = $request->file('proof_of_payment')->store('payments', 'public');
-            } catch (\Exception $e) {
-                // JIKA GAGAL (Folder permission dll), BIARKAN SAJA.
-                // Jangan throw error, lanjut ke pembuatan order.
-            }
-        }
-
-        DB::beginTransaction();
         try {
-            // Buat Order (Status Langsung PAID & PROCESSING)
-            $order = Order::create([
-                'user_id' => Auth::id(),
-                'order_code' => 'ORD-' . rand(1000,9999) . date('d'),
-                'total' => $request->total_amount,
-                'status' => 'processing',     // Masuk tab 'Dikemas'
-                'payment_status' => 'paid',   // Anggap Lunas
-                'payment_method' => $request->payment_method ?? 'Transfer Manual',
-                'payment_proof' => $proofPath, // Simpan path (asli atau dummy)
-                'margin' => 0
+            // Validasi alamat pengiriman
+            $validated = $request->validate([
+                'shipping_name' => 'required|string|max:255',
+                'shipping_phone' => 'required|string|max:20',
+                'shipping_address' => 'required|string',
+                'shipping_city' => 'required|string|max:100',
+                'shipping_postal_code' => 'required|string|max:10',
+                'shipping_cost' => 'required|numeric|min:0',
+                'platform_fee' => 'required|numeric|min:0',
+                'total_amount' => 'required|numeric|min:0',
+                'selected_ids' => 'required|string',
+                'payment_method' => 'nullable|string|max:50',
+                'proof_of_payment' => 'nullable|file|mimes:jpg,jpeg,png|max:2048'
             ]);
 
-            // Pindahkan Item & Hapus dari Keranjang
+            $cart = Session::get('cart', []);
+            if(empty($cart) || empty($validated['selected_ids'])) {
+                return redirect()->back()->with('error', 'Keranjang kosong atau produk tidak dipilih');
+            }
+
+            $selectedIds = explode(',', $validated['selected_ids']);
+            
+            // Hitung total harga produk
+            $productTotal = 0;
+            $orderItems = [];
+            
             foreach($selectedIds as $id) {
                 if(isset($cart[$id])) {
-                    OrderItem::create([
-                        'order_id' => $order->id,
+                    $productTotal += $cart[$id]['price'] * $cart[$id]['quantity'];
+                    
+                    // Prepare order items data
+                    $orderItems[] = [
                         'product_id' => $id,
                         'quantity' => $cart[$id]['quantity'],
                         'price' => $cart[$id]['price'],
                         'subtotal' => $cart[$id]['price'] * $cart[$id]['quantity'],
-                    ]);
-                    
-                    // Hapus item dari session cart
-                    unset($cart[$id]); 
+                        'supplier_id' => $cart[$id]['supplier_id'],
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ];
+                }
+            }
+            
+            if (empty($orderItems)) {
+                return redirect()->back()->with('error', 'Tidak ada item yang valid dalam keranjang');
+            }
+            
+            // Hitung grand total
+            $grandTotal = $productTotal + $validated['shipping_cost'] + $validated['platform_fee'];
+
+            // Upload bukti pembayaran
+            $proofPath = 'payments/bukti-otomatis.jpg';
+            if ($request->hasFile('proof_of_payment')) {
+                try {
+                    $proofPath = $request->file('proof_of_payment')->store('payments', 'public');
+                } catch (\Exception $e) {
+                    \Log::error('Error uploading payment proof: ' . $e->getMessage());
+                    return redirect()->back()->with('error', 'Gagal mengunggah bukti pembayaran: ' . $e->getMessage());
                 }
             }
 
-            // Update Sisa Keranjang
-            Session::put('cart', $cart);
+            DB::beginTransaction();
             
-            DB::commit();
-            
-            // Redirect SUKSES ke Pesanan Saya
-            return redirect()->route('dropshipper.orders')->with('success', 'Pembayaran Berhasil! Pesanan sedang dikemas.');
+            try {
+                // Buat Order dengan data lengkap
+                $orderData = [
+                    'user_id' => Auth::id(),
+                    'order_code' => 'ORD-' . now()->format('Ymd') . '-' . strtoupper(\Str::random(6)),
+                    'total' => $productTotal,
+                    'status' => 'processing',
+                    'payment_status' => 'pending',
+                    'payment_method' => $validated['payment_method'] ?? 'Transfer Manual',
+                    'payment_proof' => $proofPath,
+                    'margin' => 0,
+                    'shipping_name' => $validated['shipping_name'],
+                    'shipping_phone' => $validated['shipping_phone'],
+                    'shipping_address' => $validated['shipping_address'],
+                    'shipping_city' => $validated['shipping_city'],
+                    'shipping_postal_code' => $validated['shipping_postal_code'],
+                    'shipping_cost' => $validated['shipping_cost'],
+                    'platform_fee' => $validated['platform_fee'],
+                    'grand_total' => $grandTotal,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
 
+                // Debug: Log the order data
+                \Log::info('Creating order with data:', $orderData);
+                
+                // Create the order
+                $order = Order::create($orderData);
+                
+                if (!$order) {
+                    throw new \Exception('Gagal membuat pesanan');
+                }
+                
+                // Debug: Log the created order
+                \Log::info('Order created:', ['order_id' => $order->id]);
+
+                // Add order_id to order items
+                foreach ($orderItems as &$item) {
+                    $item['order_id'] = $order->id;
+                }
+                
+                // Insert all order items at once
+                $result = \DB::table('order_items')->insert($orderItems);
+                
+                if (!$result) {
+                    throw new \Exception('Gagal menambahkan item pesanan');
+                }
+                
+                // Hapus item dari session cart
+                foreach($selectedIds as $id) {
+                    if(isset($cart[$id])) {
+                        unset($cart[$id]);
+                    }
+                }
+                
+                // Update cart session
+                Session::put('cart', $cart);
+                
+                // Commit the transaction
+                DB::commit();
+                
+                // Debug: Log success
+                \Log::info('Order processed successfully', ['order_id' => $order->id]);
+                
+                // Redirect ke halaman riwayat pesanan
+                return redirect()->route('dropshipper.order.history')
+                    ->with('success', 'Pesanan berhasil dibuat dan sedang diproses!');
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                \Log::error('Error processing order: ' . $e->getMessage());
+                \Log::error('Stack trace: ' . $e->getTraceAsString());
+                \Log::error('Last query: ' . \DB::getQueryLog()[count(\DB::getQueryLog())-1]['query']);
+                
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Terjadi kesalahan saat memproses pesanan. Silakan coba lagi. ' . $e->getMessage());
+            }
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput();
+                
         } catch (\Exception $e) {
-            DB::rollback();
-            // Jika database error parah, tetap lempar ke orders dengan pesan (jangan balik ke cart)
-            return redirect()->route('dropshipper.orders')->with('error', 'Pesanan diproses manual.');
+            \Log::error('Unexpected error in processPayment: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan tidak terduga. Silakan coba lagi. ' . $e->getMessage());
         }
     }
 }
